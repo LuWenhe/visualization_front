@@ -49,7 +49,7 @@
                     <el-form-item label="多选框">
                         <el-checkbox-group v-model="form.type">
                             <el-checkbox label="步步高" name="type"></el-checkbox>
-                            <el-checkbox label="小天才" name="type"></el-checkbox>
+                            <el-checkbox label="车市" name="type"></el-checkbox>
                             <el-checkbox label="imoo" name="type"></el-checkbox>
                         </el-checkbox-group>
                     </el-form-item>
