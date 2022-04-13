@@ -64,9 +64,9 @@ export default new Router({
                     meta: { title: 'schart图表' }
                 },
                 {
-                    path: '/testCharts',
-                    component: () => import(/* webpackChunkName: "chart" */ '../components/page/VisualCharts.vue'),
-                    meta: { title: '可视化图表' }
+                    path: '/far',
+                    component: () => import(/* webpackChunkName: "chart" */ '../components/page/FAR.vue'),
+                    meta: { title: '空报率' }
                 },
                 {
                     // 拖拽列表组件

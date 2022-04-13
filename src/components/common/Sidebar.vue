@@ -57,6 +57,17 @@ export default {
             collapse: false,
             items: [
                 {
+                    icon: 'el-icon-lx-calendar',
+                    index: 'far',
+                    title: '分钟降水预报分级检验',
+                    subs: [
+                        {
+                            index: 'far',
+                            title: '空报率'
+                        }
+                    ]
+                },
+                {
                     icon: 'el-icon-lx-home',
                     index: 'dashboard',
                     title: '系统首页'
