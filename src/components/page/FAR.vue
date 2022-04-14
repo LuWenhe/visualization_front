@@ -1,29 +1,46 @@
 <template>
     <div>
         <div id='filter' class='container'>
-            放置筛选按钮
+            陕西省综合时次分钟降水预报分级检测空报率
+            <el-row>
+                <el-button @click="change(0)" :class="{ newStyle:0===number}"">小雨0~1.5mm</el-button>
+                <el-button @click="change(1)" :class="{ newStyle:1===number}">中雨1.6~9.9mm</el-button>
+                <el-button @click="change(2)" :class="{ newStyle:2===number}">大雨10~19.9mm</el-button>
+                <el-button @click="change(3)" :class="{ newStyle:3===number}">暴雨20~39.9mm</el-button>
+                <el-button @click="change(4)" :class="{ newStyle:4===number}">大暴雨40~100mm</el-button>
+            </el-row>
         </div>
 
         <div class='container'>
-            <div id='figure'></div>
+            <div v-show="0===number" id='figure'></div>
+            <div v-show="1===number" id='middle'><p>中雨1.6~9.9mm</p></div>
+            <div v-show="2===number" id='middle'><p>大雨10~19.9mm</p></div>
+            <div v-show="3===number" id='middle'><p>暴雨20~39.9mm</p></div>
+            <div v-show="4===number" id='middle'><p>大暴雨40~100mm</p></div>
         </div>
 
-        <div id='table' class='container'>
-            <h3 style='margin-bottom: 10px; text-align: center'>降水预报分级检验空报率表</h3>
-            <el-table
-                :data="tableData"
-                :header-cell-style="{'text-align':'center'}"
-                :cell-style="{'text-align':'center'}"
-                border
-                style='width: 90%; margin: auto'>
-                <el-table-column v-for='(item, index) in tableHeader'
-                    :prop="item"
-                    :label="item"
-                    :index="index"
-                    min-width='150'>
-                </el-table-column>
-            </el-table>
-        </div>
+        <div>
+            <div v-show="0===number" id='table' class='container'>
+                <h3 style='margin-bottom: 10px; text-align: center'>降水预报分级检验空报率表</h3>
+                <el-table
+                    :data="tableData"
+                    :header-cell-style="{'text-align':'center'}"
+                    :cell-style="{'text-align':'center'}"
+                    border
+                    style='width: 90%; margin: auto'>
+                    <el-table-column v-for='(item, index) in tableHeader'
+                        :prop="item"
+                        :label="item"
+                        :index="index"
+                        min-width='150'>
+                    </el-table-column>
+                </el-table>
+            </div>
+        </div> 
+        <div v-show="1===number" id='middle'><p>中雨1.6~9.9mm</p></div>
+        <div v-show="2===number" id='middle'><p>大雨10~19.9mm</p></div>
+        <div v-show="3===number" id='middle'><p>暴雨20~39.9mm</p></div>
+        <div v-show="4===number" id='middle'><p>大暴雨40~100mm</p></div>
     </div>
 </template>
 
@@ -34,6 +51,7 @@ export default {
     name: 'TestCharts',
     data() {
         return {
+            number: 0,
             obj: {
                 'lightRain': []
             },
@@ -64,6 +82,9 @@ export default {
 
     },
     methods: {
+        change(index) {
+            this.number = index; //重要处
+        },
         myChart() {
             // 基于准备好的dom，初始化echarts实例
             let myChart = echarts.init(document.getElementById('figure'));
@@ -125,7 +146,7 @@ export default {
 
 <style scoped>
 #filter {
-    height: 200px;
+    height: 30px;
 }
 
 #figure {
@@ -136,5 +157,9 @@ export default {
 #table {
     height: 400px;
     margin-top: 10px;
+}
+
+#text {
+    margin-top: 1px;
 }
 </style>
