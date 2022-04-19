@@ -69,22 +69,22 @@ export default {
                 },
                 {
                     icon: 'el-icon-lx-home',
-                    index: '',
+                    index: '1',
                     title: '分钟降水预报晴雨检测'
                 },
                 {
                     icon: 'el-icon-lx-cascades',
-                    index: '',
+                    index: '2',
                     title: '雷达回波预报分级检测'
                 },
                 {
                     icon: 'el-icon-lx-copy',
-                    index: '',
+                    index: '3',
                     title: '点对面雷达回波检测'
                 },
-                                {
+                {
                     icon: 'el-icon-lx-copy',
-                    index: '',
+                    index: '4',
                     title: '点对面分钟降水检测'
                 },
             ]
