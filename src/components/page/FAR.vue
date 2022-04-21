@@ -1,7 +1,28 @@
 <template>
     <div>
         <div class='container filter'>
-            选择日期等选项
+            <el-form :inline="true" :rules="rules">
+                <el-form-item label="时间" prop="createTime" class="create-time-item">
+                    <el-date-picker
+                    v-model="createTime"
+                    value-format="yyyy-MM-dd hh:mm:ss"
+                    type="datetimerange"
+                    range-separator="至"
+                    start-placeholder="开始日期"
+                    end-placeholder="结束日期">
+                    </el-date-picker>
+                </el-form-item>
+                <el-select v-model="value" placeholder="请选择地区">
+                    <el-option
+                    v-for="item in options"
+                    :key="item.value"
+                    :label="item.label"
+                    :value="item.value">
+                    </el-option>
+                </el-select>
+                <el-button type="success">清空</el-button>
+                <el-button type="primary">确定</el-button>  
+            </el-form>
         </div>
 
         <div class='container chart'>
@@ -47,8 +68,37 @@ let myChart
 export default {
     name: 'FarCharts',
     data() {
+        var createTimeCheck = (rule, value, callback) => {
+        if (value === '') {
+          callback()    // 回调函数
+        } else {
+          let createTimeStart = this.createTime ? this.createTime[0] : ''    // 从数组中取出开始时间   取出结果：'2020-10-28 16:01:15'
+          let createTimeEnd = this.createTime ? this.createTime[1] : ''      // 取出结束时间
+          let sTime = (((createTimeStart.split(' '))[1]).split(':')).join('')    // 从 '2020-10-28 16:01:15' 取出时间 结果：‘160115'
+          let sDate = (((createTimeStart.split(' '))[0]).split('-')).join('')    // 取出开始日期 结果：‘20201028'
+          let endTime = (((createTimeEnd.split(' '))[1]).split(':')).join('')    // 取出结束时间
+          let endDate = (((createTimeEnd.split(' '))[0]).split('-')).join('')    // 取出结束日期
+          if (parseInt(endDate) > parseInt(sDate)) {    // 如果结束日期大于开始日期  不用判断时间
+            callback()
+          } else {
+            if (parseInt(endTime) <= parseInt(sTime)) {    // 如果结束日期不大于开始日期  判断结束时间是否大于开始时间
+              callback(new Error('结束日期必须大于开始日期'))
+            } else {
+              callback()
+            }
+          }
+        }
+      }
+
         return {
             number: 0,
+            options: [{
+                value: '选项1',
+                label: '陕西市'
+                }, {
+                value: '选项2',
+                label: '汉中市'
+            }],
             obj: {
                 'lightRain': {
                     xAxisData: [6, 12, 18, 24, 30, 36, 42, 48, 54, 60, 66, 72, 78, 84, 90, 96, 102, 108, 120],
@@ -101,7 +151,14 @@ export default {
                 '24': '0.7671',
                 '30': '0.7944',
                 '36': '0.8043'
-            }]
+            }],
+            createTime: '',     // 表单 时间 双向绑定值
+                rules: {            // 调用createTimeCheck 验证
+                createTime: [
+                    { validator: createTimeCheck, trigger: 'blur' }
+                ]
+            }
+            
         }
     },
     methods: {
