@@ -7,7 +7,7 @@ export default new Router({
   routes: [
     {
       path: '/',
-      redirect: '/far'
+      redirect: '/liveData'
     },
     {
       path: '/',
@@ -21,8 +21,18 @@ export default new Router({
         },
         {
           path: '/liveData',
-          component: () => import('../components/page/LiveData.vue'),
+          component: () => import('../components/page/LiveDataEvaluation.vue'),
           meta: { title: '实况数据评测' }
+        },
+        {
+          path: '/TwentyFourHourData',
+          component: () => import('../components/page/TwentyFourHourDataEvaluation.vue'),
+          meta: { title: '24小时预报数据评测' }
+        },
+        {
+          path: '/FifteenDayData',
+          component: () => import('../components/page/FifteenDayDataEvaluation.vue'),
+          meta: { title: '15天预报数据评测' }
         },
         {
           path: '/map',

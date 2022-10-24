@@ -32,7 +32,8 @@
 </template>
 
 <script>
-	import bus from '../common/bus';
+	import bus from '../common/bus'
+
 	export default {
 		data() {
 			return {
@@ -51,6 +52,16 @@
 						index: 'liveData',
 						title: '实况数据评测'
 					},
+          {
+            icon: 'el-icon-lx-home',
+            index: 'TwentyFourHourData',
+            title: '24小时预报数据评测'
+          },
+          {
+            icon: 'el-icon-lx-home',
+            index: 'FifteenDayData',
+            title: '15天预报数据评测'
+          },
           {
             icon: 'el-icon-lx-copy',
             index: 'mapTest',

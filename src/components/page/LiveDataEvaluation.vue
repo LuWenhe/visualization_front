@@ -2,10 +2,16 @@
   <div>
     <div class='container filter'>
       <el-form ref='form' :inline='true'>
-        <el-form-item label="时间">
-          <el-col :span="25">
-            <el-date-picker type="date" placeholder="选择日期" value-format='yyyy-MM-dd' v-model="date" style="width: 100%;"></el-date-picker>
+        <el-form-item label='时间'>
+          <el-col :span='25'>
+            <el-date-picker type='date' placeholder='选择日期' value-format='yyyy-MM-dd' v-model='date' style='width: 100%;'></el-date-picker>
           </el-col>
+        </el-form-item>
+        <el-form-item label='选择区域'>
+          <el-select v-model='tag'>
+            <el-option label='国内' :value='1'></el-option>
+            <el-option label='国外' :value='0'></el-option>
+          </el-select>
         </el-form-item>
         <el-form-item>
           <el-button type='primary' @click='onSubmit'>确定</el-button>
@@ -16,9 +22,12 @@
     <div class='container chart'>
       <div class='div-button'>
         <el-row>
-          <el-button @click="refreshChart('rain')">雨量</el-button>
-          <el-button @click="refreshChart('temp')">温度</el-button>
-          <el-button @click="refreshChart('wind')">风级</el-button>
+          <el-button v-for='(item, index) in typeArray'
+                     :index='index'
+                     @click='refreshChart(item)'
+                     :autofocus='item === type'>
+            {{item}}
+          </el-button>
         </el-row>
       </div>
 
@@ -29,18 +38,18 @@
     <div class='container table'>
       <h3>实时温度准确率（{{this.date}}）</h3>
 
-      <el-table :data="table.tableData"
+      <el-table :data="tableData.data"
                 :header-cell-style="{'text-align':'center'}"
                 :cell-style="{'text-align':'center'}"
                 style='width: 100%; margin: auto'
                 border>
         <el-table-column label='预报时间' prop='date' width='165'></el-table-column>
         <!-- 遍历第一行标题 -->
-        <el-table-column v-for='(item, index) in table.tableHeaderTop'
+        <el-table-column v-for='(item, index) in tableData.tableHeaderTop'
                          :label='item'
                          :index='index'>
           <!-- 遍历第二行标题 -->
-          <el-table-column v-for='(item2, index2) in table.tableHeader[item]'
+          <el-table-column v-for='(item2, index2) in tableData.tableHeader[item]'
                            :label='item2'
                            :prop='item2'
                            :index='index2'
@@ -53,8 +62,8 @@
 </template>
 
 <script>
-import * as echarts from 'echarts';
-import { getLiveData } from '@/network/evaluate';
+import * as echarts from 'echarts'
+import { getLiveData } from '@/network/evaluate'
 
 let myChart
 
@@ -66,11 +75,15 @@ export default {
       date: '2022-09-16',
       tag: 1,
       lineChartData: {},
-      table: {},
+      tableData: {},
+      type: 'rain',
+      typeArray: [],
       timeInterval: ['8:00', '9:00', '10:00', '11:00', '12:00', '13:00',
                     '14:00', '15:00', '16:00', '17:00', '18:00', '19:00',
                     '20:00', '21:00', '22:00', '23:00', '24:00', '1:00',
-                    '2:00', '3:00', '4:00', '5:00', '6:00', '7:00']
+                    '2:00', '3:00', '4:00', '5:00', '6:00', '7:00'],
+      legendData: [],
+      yAxisName: ''
     }
   },
   methods: {
@@ -80,9 +93,10 @@ export default {
       setTimeout(() => {
         this.getLineChartData()
         this.getTableData()
-        this.refreshChart('rain')
-      }, 300)
+        this.refreshChart(this.type)
+      }, 500)
     },
+    // 更新折线图
     refreshChart(type) {
       if (myChart != null && myChart !== '' && myChart !== undefined) {
         // 销毁ECharts
@@ -93,14 +107,7 @@ export default {
 
       let dataObj = []
 
-      if (type === 'rain') {
-        dataObj = this.lineChartData.rain
-      } else if (type === 'temp') {
-        dataObj = this.lineChartData.temp
-      } else if (type === 'wind') {
-        dataObj = this.lineChartData.wind
-      }
-
+      dataObj = this.lineChartData[type]
       let option = this.optionData(dataObj);
       myChart.setOption(option)
     },
@@ -115,7 +122,7 @@ export default {
           trigger: 'axis'
         },
         legend: {
-          data: ['MJ', 'MJCN-01', 'MJCN-02', 'MJCN-04', 'MJGL-02', 'MJGL-04'],
+          data: this.legendData,
           top: 20,
         },
         grid: {
@@ -140,7 +147,9 @@ export default {
         },
         yAxis: {
           name: '温度准确率',
-          type: 'value'
+          type: 'value',
+          min: 0,
+          max: 1.5
         },
         series: dataObj.series
       }
@@ -154,11 +163,10 @@ export default {
         return err
       })
     },
+    // 对折线图的数据进行处理
     getLineChartData() {
-      let lineChartData = {}
-      let rainObj = {}, tempObj = {}, windObj = {}
-      let rainSeriesArray = [], tempSeriesArray = [], windSeriesArray = []
-      let legendData = []
+      let lineChartData = {}, legendData = [], typeArray = []
+      let isFlag = false
 
       let data = this.liveData
 
@@ -169,6 +177,7 @@ export default {
 
         legendData.push(prodName)
 
+        // rain、temp、wind
         for (let type in prodData) {
           let seriesObj = {}
 
@@ -176,53 +185,38 @@ export default {
           seriesObj.type = 'line'
           seriesObj.data = prodData[type]
 
-          if (type === 'rain') {
-            rainSeriesArray.push(seriesObj)
-          } else if (type === 'temp') {
-            tempSeriesArray.push(seriesObj)
+          if (!isFlag) {
+            typeArray.push(type)
+
+            let typeSeriesArray = []
+            typeSeriesArray.push(seriesObj)
+            lineChartData[type] = {}
+            lineChartData[type].series = typeSeriesArray
+            lineChartData[type].xAxis = this.timeInterval
+            lineChartData[type].legendData = legendData
           } else {
-            windSeriesArray.push(seriesObj)
+            lineChartData[type].series.push(seriesObj)
           }
         }
+
+        isFlag = true
       }
 
-      let timeInterval = this.timeInterval
-
-      rainObj.xAxis = timeInterval
-      rainObj.legendData = legendData
-      rainObj.series = rainSeriesArray
-
-      tempObj.xAxis = timeInterval
-      tempObj.series = tempSeriesArray
-      tempObj.legendData = legendData
-
-      windObj.xAxis = timeInterval
-      windObj.series = windSeriesArray
-      windObj.legendData = legendData
-
-      lineChartData.rain = rainObj
-      lineChartData.temp = tempObj
-      lineChartData.wind = windObj
-
+      this.typeArray = typeArray
       this.lineChartData = lineChartData
     },
     getTableData() {
-      let table = {}
-      let tableHeaderTop = []
-      let tableHeader = {}
-      let tableData = []
+      let table = {}, tableHeaderTop = [], tableHeader = {}
+      let data = []
       let isFlag = false
 
-      let data = this.liveData
-
       // MJ、MJCN-01、MJCN-02
-      for (let prodName in data) {
-
+      for (let prodName in this.liveData) {
         tableHeaderTop.push(prodName)
         let headerArray = []
 
         // {rain: {}, temp: {}, wind: {}}
-        let prodData = data[prodName]
+        let prodData = this.liveData[prodName]
 
         for (let type in prodData) {
           let header = prodName.toLowerCase().replace('-', '') + '_' + type
@@ -235,9 +229,9 @@ export default {
               let obj = {}
               obj[header] = valueArray[i]
               obj['date'] = this.timeInterval[i]
-              tableData.push(obj)
+              data.push(obj)
             } else {
-              tableData[i][header] = valueArray[i]
+              data[i][header] = valueArray[i]
             }
           }
 
@@ -248,24 +242,25 @@ export default {
 
         table.tableHeaderTop = tableHeaderTop
         table.tableHeader = tableHeader
-        table.tableData = tableData
+        table.data = data
 
-        this.table = table
+        this.tableData = table
       }
-
-      console.log(table)
     }
   },
   mounted() {
-    this.getLiveData('2022-09-21', 1)
+    // 通过接口获取实况数据
+    this.getLiveData('2022-09-21', this.tag)
 
     setTimeout(() => {
+      // 对数据进行处理得到折线图和表格的数据
       this.getLineChartData()
       this.getTableData()
-      this.refreshChart('rain')
-    }, 300)
+      // 根据种类刷新折线图和图表
+      this.refreshChart(this.type)
+    }, 500)
   }
-};
+}
 </script>
 
 <style scoped>
