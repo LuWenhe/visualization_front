@@ -261,6 +261,11 @@ export default {
     // 通过接口获取实况数据
     this.getTwentyFourHourData('2022-09-21', this.tag)
 
+    if (Object.keys(this.TwentyFourData).length === 0) {
+      this.$message.error('数据不存在, 请稍后再试!')
+      return
+    }
+
     setTimeout(() => {
       // 对数据进行处理得到折线图和表格的数据
       this.getLineChartData()

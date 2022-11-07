@@ -43,7 +43,7 @@
                 :cell-style="{'text-align':'center'}"
                 style='width: 100%; margin: auto'
                 border>
-        <el-table-column label='预报时间' prop='date' width='165'></el-table-column>
+        <el-table-column v-if='tableData.tableHeader !== undefined' label='预报时间' prop='date' width='165'></el-table-column>
         <!-- 遍历第一行标题 -->
         <el-table-column v-for='(item, index) in tableData.tableHeaderTop'
                          :label='item'
@@ -252,13 +252,20 @@ export default {
     // 通过接口获取实况数据
     this.getLiveData('2022-09-21', this.tag)
 
+    console.log(this.tableData.tableHeader === undefined)
+
+    if (Object.keys(this.liveData).length === 0) {
+      this.$message.error('数据不存在, 请稍后再试!')
+      return
+    }
+
     setTimeout(() => {
       // 对数据进行处理得到折线图和表格的数据
       this.getLineChartData()
       this.getTableData()
       // 根据种类刷新折线图和图表
       this.refreshChart(this.type)
-    }, 500)
+    }, 500);
   }
 }
 </script>

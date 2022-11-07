@@ -15,11 +15,6 @@ export default new Router({
       meta: { title: '自述文件' },
       children: [
         {
-          path: '/far',
-          component: () => import(/* webpackChunkName: "chart" */ '../components/page/FAR.vue'),
-          meta: { title: '空报率' }
-        },
-        {
           path: '/liveData',
           component: () => import('../components/page/LiveDataEvaluation.vue'),
           meta: { title: '实况数据评测' }

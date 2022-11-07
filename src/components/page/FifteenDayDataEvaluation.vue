@@ -263,6 +263,11 @@ export default {
   mounted() {
     this.getFifteenDayData('2022-09-21', this.tag)
 
+    if (Object.keys(this.FifteenDayData).length === 0) {
+      this.$message.error('数据不存在, 请稍后再试!')
+      return
+    }
+
     setTimeout(() => {
       this.getLineChartData()
       this.getTableData()
